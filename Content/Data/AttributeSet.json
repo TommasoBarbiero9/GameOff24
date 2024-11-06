@@ -1,0 +1,26 @@
+[
+	{
+		"Name": "AttributeSetBase.Health",
+		"BaseValue": 100,
+		"MinValue": 0,
+		"MaxValue": 100,
+		"DerivedAttributeInfo": "",
+		"bCanStack": "false"
+	},
+	{
+		"Name": "AttributeSetBase.MaxHealth",
+		"BaseValue": 100,
+		"MinValue": 0,
+		"MaxValue": 100,
+		"DerivedAttributeInfo": "",
+		"bCanStack": "false"
+	},
+	{
+		"Name": "AttributeSetBase.Strength",
+		"BaseValue": 100,
+		"MinValue": 0,
+		"MaxValue": 100,
+		"DerivedAttributeInfo": "",
+		"bCanStack": "false"
+	}
+]

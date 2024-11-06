@@ -79,7 +79,7 @@ protected:
 	FGameplayTag DeadTag;
 	FGameplayTag EffectRemoveOnDeathTag;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	class UAbilitySystemComponent* AbilitySystemComponent;
 
 	UPROPERTY()

@@ -34,6 +34,30 @@ public:
 	ATTRIBUTE_ACCESSORS(UAttributeSetBase, MaxHealth);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData Strength;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, Strength);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData MaxStrength;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, MaxStrength);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData Speed;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, Speed);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData MaxSpeed;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, MaxSpeed);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData Armor;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, Armor);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData MaxArmor;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, MaxArmor);
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UAttributeSetBase, Damage);
 
