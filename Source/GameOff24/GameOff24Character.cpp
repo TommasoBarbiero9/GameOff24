@@ -3,7 +3,6 @@
 #include "GameOff24Character.h"
 
 #include "AbilitySystemComponent.h"
-#include "GameOff24Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -14,8 +13,8 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GAS/AttributeSetBase.h"
-#include "Kismet/GameplayStatics.h"
 
 struct FGameplayAbilitySpecHandle;
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -26,12 +25,14 @@ AGameOff24Character::AGameOff24Character()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-		
+
+	// Create a SpringArm Component
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SringArm"));
+	SpringArmComponent->SetupAttachment(GetCapsuleComponent());
+	
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
-	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	FirstPersonCameraComponent->SetupAttachment(SpringArmComponent);
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
