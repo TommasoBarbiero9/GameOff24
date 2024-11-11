@@ -15,6 +15,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/AttributeSetBase.h"
+#include "GAS/GOAbilitiesDataAsset.h"
+#include "Weapons/GOWeapon.h"
 
 struct FGameplayAbilitySpecHandle;
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -110,10 +112,54 @@ void AGameOff24Character::BeginPlay()
 	{
 		AttributeSetBase = AbilitySystemComponent->GetSet<UAttributeSetBase>();
 	}
+	
+	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			constexpr int32 Priority = 0;
+			Subsystem->AddMappingContext(DefaultMappingContext, Priority);
+		}
+	}
 
 	InitializeAttributes();
 	AddCharacterAbilities();
 	AddStartupEffects();
+	InitAbilitySystem();
+}
+
+void AGameOff24Character::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	SpawnDefaultWeapon();
+}
+
+void AGameOff24Character::AddWeaponToInventory(AGOWeapon* NewWeapon, bool bEquipWeapon)
+{
+	CurrentWeapon = NewWeapon;
+	NewWeapon->SetOwningCharacter(this);
+	NewWeapon->AddAbilities();
+}
+
+void AGameOff24Character::SpawnDefaultWeapon()
+{
+	int32 NumWeaponClasses = DefaultInventoryWeaponClasses.Num();
+	for (int32 i = 0; i < NumWeaponClasses; i++)
+	{
+		if (!DefaultInventoryWeaponClasses[i])
+		{
+			// An empty item was added to the Array in blueprint
+			continue;
+		}
+
+		AGOWeapon* NewWeapon = GetWorld()->SpawnActorDeferred<AGOWeapon>(DefaultInventoryWeaponClasses[i],
+			FTransform::Identity, this, this, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		NewWeapon->bSpawnWithCollision = false;
+		NewWeapon->FinishSpawning(FTransform::Identity);
+
+		bool bEquipFirstWeapon = i == 0;
+		AddWeaponToInventory(NewWeapon, bEquipFirstWeapon);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -132,13 +178,28 @@ void AGameOff24Character::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGameOff24Character::Look);
+
+		if (AbilitiesDataAsset)
+		{
+			const TSet<FGameplayInputAbilityInfo>& InputAbilities = AbilitiesDataAsset->GetInputAbilities();
+			for (const auto& It : InputAbilities)
+			{
+				if (It.IsValid())
+				{
+					const UInputAction* InputAction = It.InputAction;
+					const int32 InputID = It.InputID;
+     
+					EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Started, this, &AGameOff24Character::OnAbilityInputPressed, InputID);
+					EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Completed, this, &AGameOff24Character::OnAbilityInputReleased, InputID);
+				}
+			}
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
-
 
 void AGameOff24Character::Move(const FInputActionValue& Value)
 {
@@ -163,6 +224,22 @@ void AGameOff24Character::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AGameOff24Character::OnAbilityInputPressed(int32 InputID)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AbilityLocalInputPressed(InputID);
+	}
+}
+
+void AGameOff24Character::OnAbilityInputReleased(int32 InputID)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AbilityLocalInputReleased(InputID);
 	}
 }
 
@@ -207,12 +284,17 @@ float AGameOff24Character::GetMaxHealth() const
 	return 0.0f;
 }
 
+const AGOWeapon* AGameOff24Character::GetCurrentWeapon()
+{
+	return CurrentWeapon;
+}
+
 void AGameOff24Character::AddCharacterAbilities()
 {
-	for (TSubclassOf<UGameplayAbility>& StartupAbility : CharacterAbilities)
+	for (TSubclassOf<UGOGameplayAbility>& StartupAbility : CharacterAbilities)
 	{
 		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(StartupAbility, 1, 1, this));
+			FGameplayAbilitySpec(StartupAbility, 1, static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
 	}
 }
 
@@ -247,6 +329,24 @@ void AGameOff24Character::AddStartupEffects()
 		if (NewHandle.IsValid())
 		{
 			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent);
+		}
+	}
+}
+
+void AGameOff24Character::InitAbilitySystem()
+{
+	if (AbilitiesDataAsset)
+	{
+		const TSet<FGameplayInputAbilityInfo>& InputAbilities = AbilitiesDataAsset->GetInputAbilities();
+		constexpr int32 AbilityLevel = 1;
+  
+		for (const auto& It : InputAbilities)
+		{
+			if (It.IsValid())
+			{
+				const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(It.GameplayAbilityClass, AbilityLevel, It.InputID);
+				AbilitySystemComponent->GiveAbility(AbilitySpec);
+			}
 		}
 	}
 }
