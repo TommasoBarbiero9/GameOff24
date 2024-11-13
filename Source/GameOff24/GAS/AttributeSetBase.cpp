@@ -19,24 +19,22 @@ void UAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallba
 {
 	Super::PostGameplayEffectExecute(Data);
 
+	// Damage
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-		// Damage
-		if (Data.EvaluatedData.Attribute == GetDamageAttribute())
-		{
-			SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-		} // Health 
-		else if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-		{
-			// Handle other health changes.
-			// Health loss should go through Damage.
-			SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-		}
+		float NewHealth = GetHealth() - GetDamage();
+		SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
+	} // Health 
+	else if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		// Handle other health changes.
+		// Health loss should go through Damage.
+		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 	}
 }
 
 void UAttributeSetBase::AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute,
-	float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
+                                                    float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
 {
 	UAbilitySystemComponent* AbilityComp = GetOwningAbilitySystemComponent();
 	const float CurrentMaxValue = MaxAttribute.GetCurrentValue();
