@@ -4,7 +4,7 @@
 #include "GOGameplayAbility_TriggeredInputAction.h"
 #include "EnhancedInputComponent.h"
 #include "GOAbilitiesDataAsset.h"
-#include "GameOff24/GameOff24Character.h"
+#include "GameOff24/GOPlayerCharacter.h"
 
 UGOGameplayAbility_TriggeredInputAction::UGOGameplayAbility_TriggeredInputAction()
 {
@@ -21,7 +21,7 @@ void UGOGameplayAbility_TriggeredInputAction::ActivateAbility(const FGameplayAbi
 
 	bool bSuccess = false;
 
-	if (const AGameOff24Character* PlayerCharacter = Cast<AGameOff24Character>(GetAvatarActorFromActorInfo()))
+	if (const AGOPlayerCharacter* PlayerCharacter = Cast<AGOPlayerCharacter>(GetAvatarActorFromActorInfo()))
 	{
 		EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerCharacter->InputComponent);
 		if (EnhancedInputComponent)
