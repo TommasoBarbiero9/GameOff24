@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "Logging/LogMacros.h"
+#include "GameplayEffectTypes.h"
 #include "GameOff24Character.generated.h"
 
 class UGOAbilitiesDataAsset;
@@ -22,6 +23,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AGameOff24Character*, Character);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FGSOnGameplayAttributeValueChangedDelegate, FGameplayAttribute, Attribute, float, NewValue, float, OldValue);
 
 UCLASS(config=Game)
 class AGameOff24Character : public ACharacter, public IAbilitySystemInterface
@@ -75,8 +77,14 @@ protected:
 	// These effects are only applied one time on startup
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GO|Abilities")
 	TArray<TSubclassOf<class UGameplayEffect>> StartupEffects;
+
+	// Attribute changed delegate handles
+	FDelegateHandle HealthChangedDelegateHandle;
 	
 	virtual void BeginPlay() override;
+
+	// Attribute changed callbacks
+	virtual void HealthChanged(const FOnAttributeChangeData& Data);
 	
 	virtual void AddCharacterAbilities();
 

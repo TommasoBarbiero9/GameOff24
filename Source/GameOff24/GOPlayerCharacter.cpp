@@ -44,6 +44,8 @@ void AGOPlayerCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, Priority);
 		}
 	}
+
+	InitAbilitySystem();
 }
 
 //////////////////////////////////////////////////////////////////////////// Weapon

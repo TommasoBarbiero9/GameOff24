@@ -36,7 +36,7 @@ UAbilitySystemComponent* AGameOff24Character::GetAbilitySystemComponent() const
 
 bool AGameOff24Character::IsAlive() const
 {
-	return GetHealth() >= 0.f;
+	return GetHealth() > 0.f;
 }
 
 void AGameOff24Character::Die()
@@ -89,6 +89,9 @@ void AGameOff24Character::BeginPlay()
 	if (IsValid(AbilitySystemComponent))
 	{
 		AttributeSetBase = AbilitySystemComponent->GetSet<UAttributeSetBase>();
+		
+		// Attribute change callbacks
+		HealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetHealthAttribute()).AddUObject(this, &AGameOff24Character::HealthChanged);
 	}
 
 	InitializeAttributes();
@@ -96,7 +99,14 @@ void AGameOff24Character::BeginPlay()
 	AddStartupEffects();
 }
 
-
+void AGameOff24Character::HealthChanged(const FOnAttributeChangeData& Data)
+{
+	// Check for and handle death
+	if (!IsAlive() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
+	{
+		Die();
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////// GAS
 
