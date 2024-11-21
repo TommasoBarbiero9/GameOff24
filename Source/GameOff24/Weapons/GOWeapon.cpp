@@ -34,12 +34,16 @@ AGOWeapon::AGOWeapon()
 	WeaponMesh1P->CastShadow = false;
 	WeaponMesh1P->SetVisibility(false, true);
 	WeaponMesh1P->SetupAttachment(CollisionComp);
-	WeaponMesh1P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
 }
 
 UAbilitySystemComponent* AGOWeapon::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+TSubclassOf<UGOHUDReticle> AGOWeapon::GetHUDReticleClass()
+{
+	return HUDReticleClass;
 }
 
 void AGOWeapon::SetOwningCharacter(AGameOff24Character* InOwningCharacter)

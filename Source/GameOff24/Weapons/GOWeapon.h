@@ -11,6 +11,7 @@
 struct FInputActionValue;
 struct FGameplayAbilitySpecHandle;
 class AGameOff24Character;
+class UPaperSprite;
 class UGOGameplayAbility;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponAmmoChangedDelegate, int32, OldValue, int32, NewValue);
@@ -35,6 +36,10 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GO|GOWeapon")
 	FWeaponAmmoChangedDelegate OnMaxSecondaryClipAmmoChanged;
+
+	// UI HUD Primary Icon when equipped.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GO|GOWeapon")
+	UPaperSprite* WeaponIcon;
 	
 	// Whether or not to spawn this weapon with collision enabled (pickup mode).
 	// Set to false when spawning directly into a player's inventory or true when spawning into the world in pickup mode.
@@ -42,6 +47,9 @@ public:
 	bool bSpawnWithCollision;
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	UFUNCTION(BlueprintCallable, Category = "GO|GOWeapon")
+	TSubclassOf<UGOHUDReticle> GetHUDReticleClass();
 
 	void SetOwningCharacter(AGameOff24Character* InOwningCharacter);
 
@@ -59,7 +67,7 @@ protected:
 	UPROPERTY()
 	UAbilitySystemComponent* AbilitySystemComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSWeapon")
+	UPROPERTY(BlueprintReadOnly, Category = "GO|GOWeapon")
 	AGameOff24Character* OwningCharacter;
 
 	UPROPERTY(EditAnywhere, Category = "GO|GOWeapon")
@@ -76,8 +84,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCapsuleComponent* CollisionComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "GASShooter|GSWeapon")
+	UPROPERTY(VisibleAnywhere, Category = "GO|GOWeapon")
 	USkeletalMeshComponent* WeaponMesh1P;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GO|UI")
+	TSubclassOf<class UGOHUDReticle> HUDReticleClass;
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;

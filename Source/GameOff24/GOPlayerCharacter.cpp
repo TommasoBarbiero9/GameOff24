@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameOff24PlayerController.h"
 #include "InputActionValue.h"
 #include "GAS/GOAbilitiesDataAsset.h"
 #include "Weapons/GOWeapon.h"
@@ -36,13 +37,15 @@ void AGOPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	if (AGameOff24PlayerController* PlayerController = Cast<AGameOff24PlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			constexpr int32 Priority = 0;
 			Subsystem->AddMappingContext(DefaultMappingContext, Priority);
 		}
+
+		PlayerController->CreateHUD();
 	}
 
 	InitAbilitySystem();
@@ -78,7 +81,7 @@ void AGOPlayerCharacter::AddWeaponToInventory(AGOWeapon* NewWeapon, bool bEquipW
 	NewWeapon->AddAbilities();
 }
 
-const AGOWeapon* AGOPlayerCharacter::GetCurrentWeapon()
+AGOWeapon* AGOPlayerCharacter::GetCurrentWeapon() const
 {
 	return CurrentWeapon;
 }

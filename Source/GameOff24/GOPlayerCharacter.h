@@ -49,7 +49,7 @@ public:
 	void AddWeaponToInventory(AGOWeapon* NewWeapon, bool bEquipWeapon = false);
 
 	UFUNCTION(BlueprintCallable, Category = "GO|Weapon")
-	const AGOWeapon* GetCurrentWeapon();
+	AGOWeapon* GetCurrentWeapon() const;
 
 protected:
 	virtual void BeginPlay() override;
